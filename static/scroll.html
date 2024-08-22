@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            -webkit-overflow-scrolling: auto;
+        }
+
+        #banner {
+            background: burlywood;
+            height: 400px;
+        }
+
+        #container {
+            background: #f1c40f;
+            display: flex;
+            flex-direction: row;
+        }
+
+        #left {
+            display: block;
+            min-width: 300px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        #left li {
+            line-height: 50px;
+            text-align: center;
+            border: 1px solid #73c6b6;
+        }
+
+        #left li.highlight {
+            background: #ba4a00;
+        }
+
+        #right {
+            flex-grow: 1;
+            counter-reset: chapter;
+            min-height: 100vh;
+            /* max-height: 100vh;
+            overflow: auto; */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #right #subBar {
+            height: 20px;
+            background: grey;
+            position: sticky;
+            top: 0;
+        }
+
+        #right .poster {
+            display: inline-block;
+            box-sizing: border-box;
+            width: 50%;
+            padding: 10px;
+
+        }
+
+        #container #right .bg-a::before {
+            background: #73c6b6;
+        }
+
+        #container #right .bg-b::before {
+            background: #d6eaf8;
+        }
+
+        #container #right .bg-c::before {
+            background: #fadbd8;
+        }
+
+
+        #right .poster::before {
+            counter-increment: chapter;
+            content: attr(data-category)' - ' counter(chapter);
+            display: block;
+            aspect-ratio: 16 / 9;
+            background: #f5cba7;
+        }
+
+        #right #loading {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            visibility: hidden;
+        }
+
+        #right #loading.show {
+            visibility: visible;
+        }
+
+        #posters .pull-holder {
+            height: 100vh;
+            background: #ba4a00;
+        }
+        #posters .right-wrapper {
+            min-height: 100vh;
+         
+        }
+        #posters .right-wrapper:empty::after {
+            content: 'loading';
+            display: block;
+            font-size: 36px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="banner">
+
+    </div>
+    <div id="container">
+        <ul id="left">
+            <li data-category="a">AAA</li>
+            <li data-category="b">BBB</li>
+            <li data-category="c">CCC</li>
+        </ul>
+        <div id="right">
+            <div id="subBar">sub bar</div>
+            <div id="posters">
+                <div data-category="a" class="right-wrapper"></div>
+                <div class="pull-holder"></div>
+                <div data-category="b" class="right-wrapper"></div>
+                <div class="pull-holder"></div>
+                <div data-category="c" class="right-wrapper"></div>
+                <div class="pull-holder"></div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+function a() {
+
+console.log('111')
+b()
+}
+
+function b() {
+    console.log('2222')
+    console.log(new Error().stack.toString())
+
+}
+a()
+        // const posters = document.querySelector('#posters')
+        // const left = document.querySelector('#left')
+
+        // const subBar = document.querySelector('#subBar')
+
+        // const categories = ['a', 'b', 'c']
+
+        // let scrlTop = document.documentElement.scrollTop || document.body.scrollTop
+        // const leftStickyPos = left.getBoundingClientRect().top + scrlTop
+
+        // const subBarHeight = subBar.getBoundingClientRect().height
+
+        // let currentCategory
+        // let isStickied = false
+
+        // const statusObject = {
+        //     a: { pages: 0, fetched:[] },
+        //     b: { pages: 0, fetched:[] },
+        //     c: { pages: 0, fetched:[] },
+        // }
+
+        // const mockData = {
+        //     a: [9],
+        //     b: [2, 2, 2],
+        //     c: [10]
+        // }
+
+        // function attachEvents() {
+        //     left.addEventListener('click', (e) => {
+        //         const category = e.target.dataset.category
+        //         if (currentCategory !== category) {
+        //             loadRight(category, { to: 'top' })
+        //         }
+        //     })
+
+        //     let _lastScrl
+        //     let direction
+        //     let scrollTop
+        //     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight
+        //     let _t
+        //     let _bouncePos
+        //     function onScrollEnd() {
+        //         let current = posters.querySelector(`.right-wrapper[data-category="${currentCategory}"]`)
+        //         //判断是否正在加载
+
+        //         if (direction == 1) {
+        //             let nextHolder = current.nextSibling?.nextSibling
+        //             if (!nextHolder || 'DIV' !== nextHolder.tagName) return
+
+
+        //             let rect = nextHolder.getBoundingClientRect()
+
+        //             let currentStatus = statusObject[currentCategory]
+        //             if (!currentStatus._bouncePos) {
+        //                 currentStatus._bouncePos = nextHolder.offsetTop
+        //             }
+        //             if (rect.top + rect.height / 4 <= windowHeight) {
+
+        //                 // console.log('>>>> currentStatus', currentStatus, currentCategory)
+        //                 if (currentStatus.status === 'completed') {
+        //                     //next one
+        //                     // console.log('>>> next one')
+        //                     const nextIndex = categories.indexOf(currentCategory) + 1
+        //                     if (categories[nextIndex]) {
+        //                         console.log('>>> from down 1')
+        //                         loadRight(categories[nextIndex], { to: 'top' })
+        //                     } else {
+        //                         //没有了
+        //                         console.log('>>> from down 1222')
+        //                         nextHolder.parentNode.removeChild(nextHolder)
+        //                     }
+        //                 } else if (currentStatus.status === 'fetched') {
+        //                     currentStatus.pages++
+        //                     console.log('>>> ', currentCategory + ' ++ down 2')
+        
+        //                     loadRight(currentCategory)
+        //                 }
+        //                 if (currentStatus.status === 'fetching') {
+        //                     //bounce back
+        //                     document.documentElement.scrollTo(0, currentStatus._bouncePos)
+        //                 } else {
+        //                     currentStatus._bouncePos = undefined
+        //                 }
+        //             }
+        //         }
+
+        //         if (direction == -1) {
+        //             let preHolder = current.previousSibling?.previousSibling
+        //             if (!preHolder || 'DIV' !== preHolder.tagName) return
+        //             let rect = preHolder.getBoundingClientRect()
+        //             let currentStatus = statusObject[currentCategory]
+        //             if (rect.bottom >= rect.height / 4) {
+        //                 const preIndex = categories.indexOf(currentCategory) - 1
+        //                 let prevCategory = categories[preIndex]
+        //                 if (prevCategory) {
+        //                     let prevStatus = statusObject[prevCategory]
+        //                     console.log('>>> xxx', prevCategory, prevStatus)
+        //                     if (prevStatus.status) {
+        //                         let prevTop = posters.querySelector(`.right-wrapper[data-category="${prevCategory}"]`).offsetTop
+        //                         document.documentElement.scrollTo(0, prevTop)
+        //                         currentCategory = prevCategory
+        //                     } else {
+        //                         console.log('>>> from up')
+        //                         loadRight(prevCategory, { to: 'top' })
+        //                     }
+                            
+        //                 }
+        //             }
+        //         }
+
+
+        //     }
+        //     window.addEventListener('scroll', () => {
+        //         _t && window.clearTimeout(_t)
+        //         _t = setTimeout(onScrollEnd, 10)
+        //     })
+
+        //     window.addEventListener('scroll', (e) => {
+
+        //         scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+
+        //         const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
+
+        //         direction = _lastScrl ? (scrollTop > _lastScrl ? 1 : -1) : 0
+
+        //         _lastScrl = scrollTop
+
+
+        //         if (scrollTop >= leftStickyPos) {
+        //             isStickied = true
+        //             // right.classList.add('fixed-right')
+        //         } else {
+        //             isStickied = false
+        //             // right.classList.remove('fixed-right')
+        //         }
+        //     })
+
+        // }
+
+        // function getElementTop(element) {
+
+        // }
+
+        // function loadRight(category, options) {
+
+        //     if (!category) {
+        //         return
+        //     }
+
+
+        //     currentCategory = category
+
+
+        //     document.querySelector(`#left .highlight`)?.classList.remove('highlight')
+        //     document.querySelector(`#left li[data-category="${category}"]`).classList.add('highlight')
+
+        //     let status = statusObject[category]
+        //     console.log('>>>>> status.status', category + ' ',  status.status, status.fetched, status.pages)
+        //     if (status.status === 'fetching') {
+        //         return
+        //     }
+        //     if (status.status !== 'completed') {
+        //         status.status = 'fetching'
+        //     }
+        //     if (options) {
+        //         let topPos = posters.querySelector(`.right-wrapper[data-category="${currentCategory}"]`).offsetTop
+        //         document.documentElement.scrollTo(0, topPos - subBarHeight)
+        //     }
+        //     statusObject[category] = status
+
+        //     if (status.status === 'completed') {
+        //         return
+        //     }
+            
+        //     if (status.fetched.includes(status.pages)) {
+        //         return
+        //     }
+        //     status.fetched.push(status.pages)
+        //     statusObject[category] = status
+
+        //     function mockFetch() {
+        //         const fillCount = mockData[category][status.pages]
+        //         console.log('>>> fillCount', category,  status.status, status.pages, fillCount)
+        //         if (fillCount) {
+        //             const html = (new Array(fillCount)).fill(`<div data-category="${category}" class="poster bg-${category}">
+        //     </div>`).join('')
+
+        //             posters.querySelector(`.right-wrapper[data-category="${category}"]`).innerHTML += html
+
+        //             status.status = 'fetched'
+        //         } else {
+        //             status.status = 'completed'
+                    
+        //         }
+        //         // posters.querySelector(`.right-wrapper[data-category="${currentCategory}"]`).scrollIntoView()
+
+        //         statusObject[category] = status
+        //     }
+        //     setTimeout(() => {
+        //         mockFetch()
+        //         // if (options) {
+        //         //     let topPos = posters.querySelector(`.right-wrapper[data-category="${currentCategory}"]`).offsetTop
+        //         //     document.documentElement.scrollTo(0, topPos - subBarHeight)
+        //         // }
+        //     }, 1000)
+
+        //     // if (isStickied) {
+        //     //     document.documentElement.scrollTo(0, leftStickyPos)
+        //     // }
+
+        // }
+
+        // loadRight('a')
+        // attachEvents()
+    </script>
+</body>
+
+</html>

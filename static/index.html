@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';">
+
+</head>
+
+<body>
+    Hello
+    <div id="container"></div>
+</body>
+<script type="text/plain">
+    const _setTimeout = window.setTimeout
+    function parseCaller(index, one = true) {
+        let stackString = new Error().stack.toString()
+        let stacks = stackString.split(/\n/)
+        if (one) {
+            return stacks[index]
+        } else {
+            return stacks.slice(index)
+        }
+
+    }
+    window.setTimeout = function (fn, delay) {
+        let c = parseCaller(3)
+        _setTimeout(() => {
+
+            console.log('ooo setTimeout', [c, parseCaller(2 , false)])
+            fn()
+        }, delay)
+    }
+
+    const _promise = window.Promise
+    window.Promise = function (init, staticMethod) {
+        console.log('>>>>aaa', new Error().stack)
+        const caller = staticMethod ? parseCaller(4, false) : parseCaller(4)
+        let value = undefined
+        let state = 'PENDING'
+        let handlers = []
+        let catchers = []
+
+        this.then = function (successCallback) {
+            if (state === 'FULFILLED') {
+                console.log('>>> FULFILLED', caller)
+                value = successCallback(value)
+            } else {
+                handlers.push(successCallback)
+            }
+            return this
+        }
+        this.catch = function (failureCallback) {
+            if (state === 'REJECTED') {
+                console.log('>>>', caller)
+                failureCallback(value)
+            } else {
+                catchers.push(value);
+            }
+        }
+
+
+            ; (staticMethod ? _promise[staticMethod](init) : new _promise(init)).then(result => {
+                if (state !== 'PENDING') return
+
+                state = 'FULFILLED'
+                value = result
+
+                const caller1 = parseCaller(2)
+                console.log('>>>>bbb', new Error().stack)
+                console.log('>>> FULFILLED222', caller, caller1)
+                handlers.forEach((h) => {
+
+                    h(value)
+                })
+            }).catch(() => {
+                state = 'REJECTED'
+                catchers.forEach(c => {
+                    console.log('>>>', caller)
+                    c(value)
+                })
+            })
+
+        return this
+    }
+
+        ;['resolve'].forEach(method => {
+            window.Promise[method] = function (value) {
+                return window.Promise(value, method)
+            }
+        })
+
+</script>
+<!-- <script src="script1.js" type="module"></script>   -->
+<script src="index.js" type="module"></script>
+<!-- <script src="./dist/main.js"></script> -->
+</html>

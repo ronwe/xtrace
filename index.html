@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';connect-src http://xtrace/;">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .browser {
+            flex-grow: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        webview {
+            flex-grow: 1;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 3px;
+        }
+
+        .browser .address {
+            flex-grow: 1;
+        }
+
+        .vi-panel {
+            border: 1px solid #ccc;
+            height: 100vh;
+            min-width: 500px;
+            overflow: scroll;
+            
+          
+        }
+
+        .vi-panel .file {
+            border: 1px solid #1e8449;
+            float: left;
+         
+            margin: 5px;
+            background: #fbeee6;
+
+        }
+        .vi-panel .file>.filename {
+            display: block;
+            background: #cb4335;
+            color: wheat;
+        }
+        .vi-panel .file>.function-blocks {
+            display: block;
+            background: #f5cba7;
+            max-width: 480px;
+            /* display: flex;
+            flex-direction: row; */
+        }
+        .vi-panel .block {
+            min-width: 150px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .vi-panel .file>.block {
+            background: #85929e;
+        } 
+
+        .vi-panel .file .function {
+            background: #85c1e9;
+            float: left;
+            min-width: 160px;
+        }
+        .vi-panel .file .function .block {
+            background: #d4efdf;
+
+        }
+        /* .vi-panel .vi-panel-col {
+            background: #2ecc71;
+            height: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        .vi-panel .vi-panel-col .block {
+            border: 1px solid #f39c12;
+            min-height: 50px;
+            padding: 10px
+        } */
+
+        .vi-panel .file .current {
+            background: rgba(133, 193, 233, 0.8); 
+            box-shadow: 10px 5px 5px #a569bd;
+        }
+
+        dialog {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+
+            border-radius: calc(5px * var(--ratio));
+            box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 1.6rem;
+            max-width: 600px;
+            padding-top: 50px;
+        }
+
+        dialog .close {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
+        .panel-wrapper {
+            flex-grow: 3;
+            position: relative;
+        }
+        .panel-wrapper .vi-panel {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+        .panel-wrapper svg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        #svg .hide {
+            display: none;
+        }
+        
+        #codePreview {
+            max-height: 80vh;
+            overflow: scroll;
+        }
+        #codePreview .line {
+            display: inline-block;
+            width: 100%;
+            margin: 0;
+        }
+        #codePreview .line span.line-no{
+            width: 30px;
+            display: inline-block;
+            text-align: right;
+        }
+        #codePreview .highlight-line {
+            background: #f5cba7;
+            
+        }
+        
+        #codePreview .filename {
+            margin: 3px;
+        }
+        #tracksPreview {
+            position: absolute;
+            right: 10px;
+            top: 30px;
+            background: #bbf550;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            opacity: 0.8;
+            box-shadow: 5px 2px 2px #85929e;
+        }
+        #tracksPreview ul{
+            
+            list-style: none;
+            box-sizing: border-box;
+            padding-left: 5px;
+        }
+        #tracksPreview ul{
+            border-left: 1px dotted blue;
+        }
+        #tracksPreview ul li {
+            cursor: pointer;
+            margin: 3px 0;     
+        }
+        #tracksPreview ul li  .stack-brief {
+            display: flex;
+            justify-content: space-between;
+        }
+        #tracksPreview ul li  .tack-location {
+           
+        }
+        #tracksPreview ul li  .stack-timespan {
+            border-left: 1px dotted red;
+            padding-left: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="browser">
+        <div class="toolbar">
+            <input data-act="backward" class="backward" type="button" value="<" />
+            <input data-act="forward" class="forward" type="button" value=">" />
+            <input data-act="refresh" class="refresh" type="button" value="o" />
+            <input class="address" value="http://127.0.0.1:8000" />
+            <input data-act="go" class="go" type="button" value="go" />
+            <input class="inspect" type="button" value="inspect" />
+        </div>
+        <webview id="webview" src="http://127.0.0.1:8000" allowpopups></webview>
+    </div>
+    <div class="panel-wrapper">
+        <div class="vi-panel" id="virtual-panel">
+
+        </div>
+        <svg id="svg" style="border:1px solid steelblue;">
+            
+        </svg>
+    </div>
+    <dialog>
+        <button autofocus class="close">Close</button>
+        <pre id="codePreview"></pre>
+        <div id="tracksPreview"></div>
+    </dialog>
+</body>
+<script src="./trace-log.js"></script>
+<script src="./browser.js"></script>
+
+</html>

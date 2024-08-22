@@ -1,0 +1,2 @@
+(()=>{"use strict";function e(){Promise.resolve().then(n)}function n(){document.getElementById("container").innerHTML="there"}console.log("blahblah"),setTimeout((async function(){Date.now()>1&&Promise.resolve().then(e)})),Promise.resolve().then(n)})();
+//# sourceMappingURL=main.js.map

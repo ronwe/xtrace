@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>我的笔记</title>
+<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.bootcdn.net/ajax/libs/Swiper/11.0.4/swiper-bundle.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+<style type="text/css">
+body{
+background: #f1f1f1;
+}
+html,body,.swiper-container, .swiper-wrapper ,.swiper-slide{
+height: 100%;
+}
+.pullDown, .pullUp {
+height:30px;
+line-height:24px;
+padding:5px 10px;
+font-size:14px;
+color:#888;
+text-align: center;
+background: transparent;
+display: block;
+margin: 0 auto;
+}
+.pullDown span, .pullUp span{
+display: block;
+width: 100%;
+text-align: center;
+margin: 0 auto;
+}
+.a{
+line-height: 40px;
+height: 40px;
+}
+.swiper-slide{
+margin: 0;
+}
+.pullDown .pullDownIcon, .pullUp .pullUpIcon {
+display:block;
+float:left;
+width:24px;
+height:24px;
+background:url(img/pull-icon@2x.png) 0 0 no-repeat;
+-webkit-background-size:40px 80px; background-size:40px 80px;
+-webkit-transition-property:-webkit-transform;
+-webkit-transition-duration:250ms;
+background-size: 100%;
+position: relative;
+left: 32%;
+}
+.pullDown .pullDownIcon {
+-webkit-transform:rotate(0deg) translateZ(0);
+}
+.pullUp .pullUpIcon {
+-webkit-transform:rotate(-180deg) translateZ(0);
+}
+
+.pullDown.flip .pullDownIcon {
+-webkit-transform:rotate(-180deg) translateZ(0);
+}
+
+.pullUp.flip .pullUpIcon {
+-webkit-transform:rotate(0deg) translateZ(0);
+}
+
+.pullDown.loading .pullDownIcon, .pullUp.loading .pullUpIcon {
+background-position:0 100%;
+-webkit-transform:rotate(0deg) translateZ(0);
+-webkit-transition-duration:0ms;
+
+-webkit-animation-name:loading;
+-webkit-animation-duration:2s;
+-webkit-animation-iteration-count:infinite;
+-webkit-animation-timing-function:linear;
+}
+
+@-webkit-keyframes loading {
+from { -webkit-transform:rotate(0deg) translateZ(0); }
+to { -webkit-transform:rotate(360deg) translateZ(0); }
+}
+.swiper-container{padding: 0;}
+.scroller{min-height: 90%;}
+</style>
+</head>
+<body>
+<header class="text-center bg-primary a">标题</header>
+<div id="wrapper">
+<ul class="swiper-container scroll_list">
+<li class="swiper-wrapper">
+<div class="list-group swiper-slide">
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+</div>
+<div class="list-group swiper-slide">
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+</div>
+<div class="list-group swiper-slide">
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+<a href="#" class="list-group-item">列表</a>
+</div>
+</li>
+</ul>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/iScroll/5.2.0/iscroll.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/Swiper/11.0.4/swiper-bundle.min.js"></script>
+<script type="text/javascript">
+
+var _h = $('body').height() - $('header').height();
+$('#wrapper').css('height', _h);
+$('.scroll_list').css('min-height', _h - 45+'px');
+var a = new Swiper('.swiper-container', {
+onTransitionEnd:function(){
+$('.swiper-slide-active').css('height','auto').siblings('.swiper-slide').css('height','0px');
+wrapper.refresh();
+}
+})
+
+var refresher = {
+info: {
+"pullDownLable": "下拉刷新",
+"pullingDownLable": "释放立即刷新",
+"pullUpLable": "上拉加载更多",
+"pullingUpLable": "释放加载更多",
+"loadingLable": "加载中..."
+},
+init: function(parameter) {
+var wrapper = document.getElementById(parameter.id);
+var div = document.createElement("div");
+div.className = "scroller";
+wrapper.appendChild(div);
+var scroller = wrapper.querySelector(".scroller");
+var list = wrapper.querySelector("#" + parameter.id + " .scroll_list");
+scroller.insertBefore(list, scroller.childNodes[0]);
+var pullDown = document.createElement("div");
+pullDown.className = "pullDown";
+var loader = document.createElement("div");
+loader.className = "pullDownIcon";
+pullDown.appendChild(loader);
+var pullDownLabel = document.createElement("div");
+pullDownLabel.className = "pullDownLabel";
+pullDown.appendChild(pullDownLabel);
+scroller.insertBefore(pullDown, scroller.childNodes[0]);
+var pullUp = document.createElement("div");
+pullUp.className = "pullUp";
+var loader = document.createElement("div");
+loader.className = "pullUpIcon";
+pullUp.appendChild(loader);
+var pullUpLabel = document.createElement("div");
+pullUpLabel.className = "pullUpLabel";
+var content = document.createTextNode(refresher.info.pullUpLable);
+pullUpLabel.appendChild(content);
+pullUp.appendChild(pullUpLabel);
+scroller.appendChild(pullUp);
+var pullDownEle = wrapper.querySelector(".pullDown");
+var pullDownOffset = pullDownEle.offsetHeight;
+var pullUpEle = wrapper.querySelector(".pullUp");
+var pullUpOffset = pullUpEle.offsetHeight;
+this.scrollIt(parameter, pullDownEle, pullDownOffset, pullUpEle, pullUpOffset);
+},
+scrollIt: function(parameter, pullDownEle, pullDownOffset, pullUpEle, pullUpOffset) {
+eval(
+parameter.id + "= new IScroll(\
+parameter.id,\
+{\
+useTransition: true,\
+vScrollbar: false,\
+topOffset: pullDownOffset,\
+onRefresh: function () {\
+refresher.onRelease(pullDownEle,pullUpEle);\
+},\
+onScrollMove: function () {\
+refresher.onScrolling(this,pullDownEle,pullUpEle,pullUpOffset);\
+},\
+onScrollEnd: function () {\
+refresher.onScrollEnd(pullDownEle,parameter.pullDownAction,pullUpEle,parameter.pullUpAction);\
+}\
+})"
+);
+},
+onScrolling: function(e, pullDownEle, pullUpEle, pullUpOffset) {
+if (e.y > -(pullUpOffset)&&!pullDownEle.className.match('loading')) {
+pullDownEle.classList.remove("flip");
+pullDownEle.querySelector('.pullDownLabel').innerHTML = refresher.info.pullDownLable;
+pullDownEle.querySelector('.pullDownIcon').style.display = "block";
+e.minScrollY = -pullUpOffset;
+}
+if (e.scrollerH < e.wrapperH &&e.y>e.maxScrollY-pullUpOffset&&pullUpEle.className.match("flip") || e.scrollerH > e.wrapperH &&e.y>e.maxScrollY-pullUpOffset&&pullUpEle.className.match("flip") ) {
+pullUpEle.classList.remove("flip");
+pullUpEle.querySelector('.pullUpLabel').innerHTML = refresher.info.pullUpLable;
+}
+if (e.y > 0&&!pullUpEle.className.match('loading')&&!pullDownEle.className.match('loading')) {
+pullDownEle.classList.add("flip");
+pullDownEle.querySelector('.pullDownLabel').innerHTML = refresher.info.pullingDownLable;
+e.minScrollY = 0;
+}
+if (e.scrollerH < e.wrapperH && e.y < (e.minScrollY - pullUpOffset) &&!pullDownEle.className.match('loading')&&!pullUpEle.className.match('loading')|| e.scrollerH > e.wrapperH && e.y < (e.maxScrollY - pullUpOffset)&&!pullDownEle.className.match('loading')&&!pullUpEle.className.match('loading')) {
+pullUpEle.classList.add("flip");
+pullUpEle.querySelector('.pullUpLabel').innerHTML = refresher.info.pullingUpLable;
+}
+
+},
+onRelease: function(pullDownEle, pullUpEle) {
+if (pullDownEle.className.match('loading')) {
+pullDownEle.classList.toggle("loading");
+pullDownEle.querySelector('.pullDownLabel').innerHTML = refresher.info.pullDownLable;
+}
+if (pullUpEle.className.match('loading')) {
+pullUpEle.classList.toggle("loading");
+pullUpEle.querySelector('.pullUpLabel').innerHTML = refresher.info.pullUpLable;
+}
+},
+onScrollEnd: function(pullDownEle, pullDownAction, pullUpEle, pullUpAction) {
+if (pullDownEle.className.match('flip')&&!pullDownEle.className.match('loading')) {
+pullDownEle.classList.add("loading");
+pullDownEle.classList.remove("flip");
+pullDownEle.querySelector('.pullDownLabel').innerHTML = refresher.info.loadingLable;
+if (pullDownAction) pullDownAction();
+}
+if (pullUpEle.className.match('flip')&&!pullUpEle.className.match('loading')) {
+pullUpEle.classList.add("loading");
+pullUpEle.classList.remove("flip");
+pullUpEle.querySelector('.pullUpLabel').innerHTML = refresher.info.loadingLable;
+if (pullUpAction) pullUpAction();
+}
+}
+}
+
+
+refresher.init({
+id:"wrapper",
+pullDownAction:Refresh,
+pullUpAction:Load
+});
+//下拉刷新
+function Refresh(){
+setTimeout(function () {
+$('.pullDownLabel').html('刷新成功')
+setTimeout(function (){
+wrapper.refresh();
+$('.pullDownLabel').html('')
+},800);
+}, 1000);
+}
+//上拉加载
+function Load() {
+var obj = $("#wrapper .swiper-slide-active");
+setTimeout(function () {
+el =document.querySelector("#wrapper .scroll_list");
+for (var i=0; i<5; i++) {
+obj.append('<a class="list-group-item">我是加载出来的</a>')
+}
+wrapper.refresh();
+},1000);
+}
+</script>
+</body>
+</html>
